@@ -1,0 +1,43 @@
+### Health
+GET http://localhost:4000/api/health
+
+### Check whether check-in is open
+GET http://localhost:4000/api/check-in/session
+
+### Register and check in (only works during the Monday 7–9 PM window)
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Jane Doe",
+  "email": "jane@example.com",
+  "phone_number": "+2348012345678",
+  "password": "a-long-password"
+}
+
+### Sign in
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "+2348012345678",
+  "password": "a-long-password"
+}
+
+### Replace TOKEN with the token from login/register
+GET http://localhost:4000/api/home
+Authorization: Bearer TOKEN
+
+### Check in
+POST http://localhost:4000/api/attendance/check-in
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{}
+
+### Attendance history
+GET http://localhost:4000/api/attendance
+Authorization: Bearer TOKEN
+
+### Quotations
+GET http://localhost:4000/api/quotations
