@@ -10,22 +10,25 @@ defmodule FellowshipApi.Meetings.Meeting do
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(meeting, attrs) do
-    meeting
-    |> cast(attrs, [:title, :starts_at, :ends_at, :status])
-    |> validate_required([:title, :starts_at, :ends_at, :status])
-    |> validate_inclusion(:status, ["scheduled", "cancelled"])
-    |> validate_change(:ends_at, fn :ends_at, ends_at ->
-      case get_field(meeting, :starts_at) do
-        %DateTime{} = starts_at ->
-          if DateTime.compare(ends_at, starts_at) == :gt,
-            do: [],
-            else: [ends_at: "must be after the start time"]
 
-        _ ->
-          []
-      end
-    end)
-    |> unique_constraint(:starts_at)
+def changeset(meeting, attrs) do
+  meeting
+  |> cast(attrs, [:title, :starts_at, :ends_at, :status])
+  |> validate_required([:title, :starts_at, :ends_at, :status])
+  |> validate_inclusion(:status, ["scheduled", "cancelled"])
+  |> validate_meeting_time_order()
+  |> unique_constraint(:starts_at)
+end
+
+defp validate_meeting_time_order(changeset) do
+  starts_at = get_field(changeset, :starts_at)
+  ends_at = get_field(changeset, :ends_at)
+
+  if starts_at && ends_at && DateTime.compare(ends_at, starts_at) != :gt do
+    add_error(changeset, :ends_at, "must be after the start time")
+  else
+    changeset
   end
+end
+
 end
