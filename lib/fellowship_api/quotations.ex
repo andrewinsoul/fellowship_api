@@ -30,7 +30,7 @@ defmodule FellowshipApi.Quotations do
     Repo.one(
       from q in Quotation,
         where: q.published == true and (is_nil(q.published_at) or q.published_at <= ^now),
-        order_by: [desc: q.published_at, desc: q.inserted_at],
+        order_by: fragment("RANDOM()"),
         limit: 1
     )
   end
