@@ -12,11 +12,8 @@ defmodule FellowshipApi.Workers.EnsureUpcomingMeetings do
 
     dates = for offset <- 0..11, do: Date.add(next_monday, offset * 7)
 
-    Enum.reduce_while(dates, :ok, fn date, :ok ->
-      case Meetings.ensure_meeting_for_date(date) do
-        {:ok, _meeting} -> {:cont, :ok}
-        {:error, reason} -> {:halt, {:error, reason}}
-      end
-    end)
+    {:ok, _inserted_count} = Meetings.ensure_meetings_for_dates(dates)
+
+    :ok
   end
 end

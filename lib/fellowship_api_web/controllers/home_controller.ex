@@ -2,6 +2,7 @@ defmodule FellowshipApiWeb.HomeController do
   use FellowshipApiWeb, :controller
   alias FellowshipApi.Meetings
   alias FellowshipApi.Quotations
+  alias FellowshipApiWeb.MeetingsJson
   alias FellowshipApi.Attendance
   alias FellowshipApiWeb.AuthController
 
