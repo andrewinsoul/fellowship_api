@@ -1,29 +1,19 @@
 defmodule FellowshipApiWeb.AuthController do
   use FellowshipApiWeb, :controller
   alias FellowshipApi.Accounts
-  alias FellowshipApi.Attendance
 
   def register_and_check_in(conn, params) do
-    case Attendance.register_and_check_in(params) do
-      {:ok, member, meeting, attendance} ->
+    case Accounts.create_member(params) do
+      {:ok, member} ->
         conn
         |> put_status(:created)
         |> json(%{
           data: %{
             member: member_json(member),
             token: issue_token(member),
-            attendance: attendance_json(attendance, meeting),
-            message: "Welcome! Your attendance has been recorded."
-          }
-        })
-
-      {:error, :check_in_closed} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{
-          error: %{
-            code: "check_in_closed",
-            message: "There is no meeting accepting check-ins right now."
+            attendance: nil,
+            message:
+              "Your account has been created. You can check in when a meeting is accepting attendance."
           }
         })
 

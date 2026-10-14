@@ -218,33 +218,15 @@ must be at least 8 characters and at most 72 characters.
       "status": "active"
     },
     "token": "COPY_TOKEN_FROM_RESPONSE",
-    "attendance": {
-      "id": 1,
-      "checked_in_at": "2026-10-19T18:05:00Z",
-      "meeting": {
-        "id": 1,
-        "title": "Monday Fellowship",
-        "starts_at": "2026-10-19T18:00:00Z",
-        "ends_at": "2026-10-19T20:00:00Z"
-      }
-    },
-    "message": "Welcome! Your attendance has been recorded."
+    "attendance": null,
+    "message": "Your account has been created. You can check in when a meeting is accepting attendance."
   }
 }
 ```
 
 The response is illustrative; IDs and timestamps will differ.
 
-### Example error: check-in is closed (`422 Unprocessable Entity`)
-
-``` json
-{
-  "error": {
-    "code": "check_in_closed",
-    "message": "There is no meeting accepting check-ins right now."
-  }
-}
-```
+Registration does not depend on an open meeting. If no meeting is accepting check-ins, registration still succeeds and `attendance` is `null`. The authenticated attendance check-in endpoint continues to return `422` with `check_in_closed` when the session is closed.
 
 ### Example error: validation failed (`422 Unprocessable Entity`)
 

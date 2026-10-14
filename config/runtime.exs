@@ -7,7 +7,7 @@ if config_env() == :prod do
 
   config :fellowship_api, FellowshipApi.Repo,
     url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE", "10")),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE", "5")),
     ssl: System.get_env("DATABASE_SSL", "false") == "true"
 
   config :fellowship_api, FellowshipApiWeb.Endpoint,
