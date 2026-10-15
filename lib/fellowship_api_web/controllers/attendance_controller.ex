@@ -4,7 +4,45 @@ defmodule FellowshipApiWeb.AttendanceController do
   alias FellowshipApiWeb.AuthController
   alias FellowshipApiWeb.Pagination
 
+  def check_in(conn, %{"qr_code" => qr_code}) when is_binary(qr_code) do
+    case validate_qr_code(qr_code) do
+      :ok -> record_check_in(conn)
+      {:error, :not_configured} ->
+        conn
+        |> put_status(:service_unavailable)
+        |> json(%{
+          error: %{
+            code: "qr_validation_unavailable",
+            message:
+              "QR check-in is not configured yet. Please contact your fellowship administrator."
+          }
+        })
+
+      {:error, :invalid} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{
+          error: %{
+            code: "invalid_qr_code",
+            message:
+              "This QR code isn't recognised. Please scan the official FGBMFI Connect fellowship QR code."
+          }
+        })
+    end
+  end
+
   def check_in(conn, _params) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error: %{
+        code: "qr_code_required",
+        message: "Please scan the official fellowship QR code before checking in."
+      }
+    })
+  end
+
+  defp record_check_in(conn) do
     case Attendance.check_in(conn.assigns.current_member) do
       {:ok, :checked_in, meeting, record} ->
         conn
@@ -46,6 +84,21 @@ defmodule FellowshipApiWeb.AttendanceController do
             message: "We could not record your attendance. Please try again."
           }
         })
+    end
+  end
+
+  defp validate_qr_code(supplied) do
+    case Application.get_env(:fellowship_api, :check_in_qr_token) do
+      expected when is_binary(expected) and byte_size(expected) > 0 ->
+        if byte_size(expected) == byte_size(supplied) and
+             Plug.Crypto.secure_compare(expected, supplied) do
+          :ok
+        else
+          {:error, :invalid}
+        end
+
+      _ ->
+        {:error, :not_configured}
     end
   end
 
