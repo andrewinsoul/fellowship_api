@@ -18,16 +18,33 @@ defmodule FellowshipApiWeb.AuthController do
         })
 
       {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{
-          error: %{
-            code: "validation_failed",
-            message: "Please check the submitted details.",
-            details: errors_on(changeset)
-          }
-        })
+        if unique_constraint_error?(changeset) do
+          conn
+          |> put_status(:conflict)
+          |> json(%{
+            error: %{
+              code: "unique_constraint_violation",
+              message: "A record with these details already exists."
+            }
+          })
+        else
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{
+            error: %{
+              code: "validation_failed",
+              message: "Please check the submitted details...",
+              details: errors_on(changeset)
+            }
+          })
+        end
     end
+  end
+
+  defp unique_constraint_error?(changeset) do
+    Enum.any?(changeset.errors, fn {_field, {_message, opts}} ->
+      opts[:constraint] == :unique
+    end)
   end
 
   def login(conn, %{"login" => login, "password" => password}) do

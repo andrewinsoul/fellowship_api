@@ -25,7 +25,7 @@ defmodule FellowshipApiWeb.AttendanceController do
           error: %{
             code: "invalid_qr_code",
             message:
-              "This QR code isn't recognised. Please scan the official FGBMFI Connect fellowship QR code."
+              "Invalid QR Code. Please scan the official FGBMFI Connect fellowship QR code."
           }
         })
     end
